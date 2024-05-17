@@ -1,0 +1,62 @@
+.word {
+    display: inline-block;
+    position: relative;
+    font-size: 2em;
+    line-height: 1.8em;
+}
+
+.mistake {
+    color: #D00;
+    background-color: #FF000020;
+}
+
+.passed {
+    color: green;
+}
+
+.caret {
+    border-bottom: 2px solid transparent;
+    animation: PulseAttention 2s cubic-bezier(.2, 1, .4, 1) infinite forwards;
+}
+
+@keyframes PulseAttention {
+    70% {
+        border-color: #AAAAAA;
+    }
+}
+
+.prevent-select {
+    -webkit-user-select: none; /* Safari */
+    -ms-user-select: none; /* IE 10 and IE 11 */
+    user-select: none; /* Standard syntax */
+}
+
+.background {
+    background-color: #333;
+}
+
+span {
+    color: #AAA;
+    font-family: monospace;
+}
+
+header {
+    background-color: #3A3A3A;
+    color: #FFF;
+    padding: 1em;
+    border-radius: 0 0 1em 1em;
+}
+
+footer {
+    background-color: #3A3A3A;
+    color: #222;
+    padding: 0.5em;
+    border-radius: 1em 1em 0 0;
+}
+
+#textDiv {
+    background-color: #373737;
+    padding: 2em;
+    margin: 5em;
+    border-radius: 1em 1em 0 0;
+}
