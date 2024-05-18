@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="h-100">
     <head>
         <title>Type Fast Online</title>
         <!-- Required meta tags -->
@@ -19,14 +19,33 @@
         <link rel="stylesheet" href="css/style.css">
     </head>
 
-    <body class="background">
-        <header>
+    <body class="background h-100">
+        <header class="fixed-top">
             <div class="d-flex justify-content-center"><h1>Type Fast Online</h1></div>
         </header>
-        <main>
-            <div class="d-flex justify-content-center">
-                <div id="textDiv" class="prevent-select">
-                    <span class="my-Input" contenteditable="true"></span>
+        <main class="h-100">
+            <div class="d-flex h-100 justify-content-center align-items-center flex-column">
+                <div id="basic-info" class="d-flex justify-content-between col-8">
+                    <span id="time" class="">0</span>
+                    <span>WPM: <span id="wpm">0</span></span>
+                </div><br>
+                <div id="text-div" class="prevent-select col-8"></div>
+            </div>
+            <div class="modal fade" id="stats" tabindex="-1" aria-labelledby="Stats" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header d-flex justify-content-center">
+                            <p>Stats</p>
+                        </div>
+                        <div class="modal-body">
+                            <ul>
+                                <li>Time: <span id="modal-time">0</span></li>
+                                <li>WPM: <span id="modal-wpm">0</span></li>
+                                <li>Characters: <span id="modal-chars"></span></li>
+                                <li>Misstakes: <span id="modal-mistakes"></span></li>
+                            </ul>
+                        </div>
+                    </div>    
                 </div>
             </div>
         </main>

@@ -35,14 +35,17 @@
     background-color: #333;
 }
 
-span {
+#text-div, #basic-info {
     color: #AAA;
     font-family: monospace;
 }
 
-header {
+header, .modal-header {
     background-color: #3A3A3A;
     color: #FFF;
+}
+
+header {
     padding: 1em;
     border-radius: 0 0 1em 1em;
 }
@@ -54,9 +57,22 @@ footer {
     border-radius: 1em 1em 0 0;
 }
 
-#textDiv {
+#text-div {
     background-color: #373737;
     padding: 2em;
-    margin: 5em;
+    margin: 1em;
     border-radius: 1em 1em 0 0;
+}
+
+#basic-info {
+    font-size: 1.5em;
+    padding-left: 1.5em;
+    padding-right: 1.5em;
+}
+
+#stats .modal-content {
+    background-color: #555;
+    font-size: 2em;
+    border: #555 solid 2px;
+    border-radius: 1em;
 }
