@@ -1,4 +1,4 @@
-let text = 'Kniha strom měsíc káva deštník hory auto kočka písnička květina čokoláda moře letadlo brýle dech hodiny cesta zámek bouřka pláž sníh počítač kabelka les pes telefon most víno dům vlak.'
+let text = 'Kniha strom '
 loadText(text)
 
 function loadText(textToLoad) {
@@ -52,18 +52,27 @@ $(document).on('keydown', (e) => {
                 deletedCount++
             }
 
+            let startMistakes = currentMistakes
+            let space = false
             while (currentMistakes > 0) {
+                console.log($(`#mistake-${currentMistakes - 1}`).text())
+                if (currentMistakes != startMistakes && $(`#mistake-${currentMistakes - 1}`).text() === ' ') {
+                    space = true
+                    break
+                }
                 $(`#mistake-${currentMistakes - 1}`).remove()
                 currentMistakes--
             }
             
-            while (currentLetterIndex > 0) {
+
+            while (currentLetterIndex > 0 && !space) {
                 currentLetterIndex--
                 $(`#letter-${currentWord}-${currentLetterIndex}`).removeClass('passed')
                 deletedCount++
             }
 
-            currentLetterIndex = 0
+            if (currentMistakes === 0 && !space) 
+                currentLetterIndex = 0
         }
         else if (currentMistakes > 0) {
             $(`#mistake-${currentMistakes - 1}`).remove()
@@ -99,6 +108,7 @@ $(document).on('keydown', (e) => {
     else {
         currentLetter.before(`<span class="letter mistake" id="mistake-${currentMistakes}">${e.key === ' ' ? "&nbsp;" : e.key}</span>`)
         currentMistakes++
+        totalMistakes++
     }
 
     $(".caret").removeClass('caret')
@@ -119,7 +129,7 @@ $(document).on('keyup', (e) => {
 function showStats() {
     $('#modal-time').text(Math.floor(getTimeMillis() / 1000) + "." + Math.floor((getTimeMillis() % 1000) / 10) + "s")
     $('#modal-wpm').text(getWPM())
-    $('#modal-mistakes').text(currentMistakes)
+    $('#modal-mistakes').text(totalMistakes)
     $('#modal-chars').text(charCount)
     $('#stats').modal('show')
 }
