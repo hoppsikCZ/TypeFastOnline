@@ -40,6 +40,10 @@
     font-family: monospace;
 }
 
+#basic-info {
+    opacity: 0;
+}
+
 header, .modal-header {
     background-color: #3A3A3A;
     color: #FFF;

@@ -1,4 +1,4 @@
-let text = 'Kniha strom '
+let text = 'asd'
 loadText(text)
 
 function loadText(textToLoad) {
@@ -22,8 +22,11 @@ let typing = false
 let charCount = 0
 let deletedCount = 0
 let startTime
+let typingReady = true
 
 $(document).on('keydown', (e) => {
+    if (!typingReady) return
+
     let currentLetter = $(`#letter-${currentWord}-${currentLetterIndex}`)
     if (!/^(.|Control|Backspace|Escape)$/.test(e.key)) {
         return
@@ -45,6 +48,7 @@ $(document).on('keydown', (e) => {
     
     if (e.key === 'Backspace') {
         if (control) {
+            
             console.log(currentLetterIndex, currentWord)
             if (currentLetterIndex === 0 && currentWord !== 0 && currentMistakes === 0) {
                 currentWord--
@@ -52,15 +56,24 @@ $(document).on('keydown', (e) => {
                 deletedCount++
             }
 
+            let letter = false;
             let startMistakes = currentMistakes
             let space = false
             while (currentMistakes > 0) {
-                console.log($(`#mistake-${currentMistakes - 1}`).text())
-                if (currentMistakes != startMistakes && $(`#mistake-${currentMistakes - 1}`).text() === ' ') {
+                let nextMisEl = $(`#mistake-${currentMistakes - 1}`) 
+                if (!letter && $)
+
+                if (/^[^ ]$/.test(nextMisEl.text()))
+                {
+                    letter = true
+                    console.log("fjfjfj")
+                }
+                
+                if (currentMistakes != startMistakes && nextMisEl.text() === ' ' && letter) {
                     space = true
                     break
                 }
-                $(`#mistake-${currentMistakes - 1}`).remove()
+                nextMisEl.remove()
                 currentMistakes--
             }
             
@@ -127,11 +140,13 @@ $(document).on('keyup', (e) => {
 })
 
 function showStats() {
-    $('#modal-time').text(Math.floor(getTimeMillis() / 1000) + "." + Math.floor((getTimeMillis() % 1000) / 10) + "s")
+    $('#modal-time').text((getTimeMillis() / 1000).toFixed(2) + "s")
     $('#modal-wpm').text(getWPM())
     $('#modal-mistakes').text(totalMistakes)
-    $('#modal-chars').text(charCount)
+    $('#modal-chars').text(charCount + deletedCount)
     $('#stats').modal('show')
+
+    typingReady = false
 }
 
 function resetStats() {
@@ -146,6 +161,7 @@ function resetStats() {
 let timer
 
 function stopTyping() {
+    $("#basic-info").animate({opacity: 0}, 500)
     resetStats()
 
     $('#text-div').empty()
@@ -164,6 +180,7 @@ function stopTyping() {
 
 function starTypingt() { 
     resetStats()
+    $("#basic-info").animate({opacity: 1}, 500)
 
     typing = true
     $('header').fadeOut()
@@ -187,6 +204,12 @@ function getTimeMillis() {
 
 function getWPM() {
     let time = (Date.now() - startTime) / 1000
+    if (time < 0.1)
+        return 60
     let wpm = Math.round((charCount - deletedCount) / 5 / time * 60)
-    return time > 0.1 ? wpm : 60
+    return wpm
 }
+
+$('#stats').on('hidden.bs.modal', () => {
+    typingReady = true
+})
