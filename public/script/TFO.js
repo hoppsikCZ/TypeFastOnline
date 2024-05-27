@@ -1,8 +1,16 @@
-let text = 'asd'
-loadText(text)
+let wordCount = 20
+
+fetchWords(wordCount).then(data => { loadText(data) })
+
+async function fetchWords(count) {
+    const response = await fetch(`https://random-word-api.herokuapp.com/word?number=${count}`);
+    return await response.json();
+}
+
+
 
 function loadText(textToLoad) {
-    textToLoad.split(' ').forEach((word, wordIndex) => {
+    textToLoad.forEach((word, wordIndex) => {
         $('#text-div').append(`<div class="word" id="word-${wordIndex}"></div>`)
         for (let i = 0; i <= word.length; i++) {
             if (i === word.length) $(`#word-${wordIndex}`).append(`<span class="letter" id="letter-${wordIndex}-${i}">&nbsp;</span>`)
@@ -23,6 +31,7 @@ let charCount = 0
 let deletedCount = 0
 let startTime
 let typingReady = true
+let splitCount = 0
 
 $(document).on('keydown', (e) => {
     if (!typingReady) return
@@ -119,6 +128,10 @@ $(document).on('keydown', (e) => {
         charCount++
     }
     else {
+        if ($(`#word-${currentWord}`).width() > $('#text-div').width())
+        {
+            splitWord(currentWord)
+        }
         currentLetter.before(`<span class="letter mistake" id="mistake-${currentMistakes}">${e.key === ' ' ? "&nbsp;" : e.key}</span>`)
         currentMistakes++
         totalMistakes++
@@ -134,6 +147,21 @@ $(document).on('keydown', (e) => {
 
     updateWPM()
 })
+
+function splitWord(wordIndex) {
+    let word = $(`#word-${wordIndex}`)
+    
+    let split = $(`#split-${splitCount}`) 
+    if (split.width() > $('text-div').width())
+    {
+        splitCount++
+        split = word.after(`<div class="word" id="split-${splitCount}"></div>`)
+    }
+    
+
+    let index = 0
+    word.children().last().detach().appendTo($(`#split-${splitCount}`))
+}
 
 $(document).on('keyup', (e) => {
     if (e.key === 'Control') control = false
@@ -165,7 +193,7 @@ function stopTyping() {
     resetStats()
 
     $('#text-div').empty()
-    loadText(text)
+    fetchWords(wordCount).then(data => { loadText(data) })
     currentLetterIndex = 0
     currentWord = 0
     currentMistakes = 0
