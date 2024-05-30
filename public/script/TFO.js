@@ -1,15 +1,16 @@
 let wordCount = 20
 
-fetchWords(wordCount).then(data => { loadText(data) })
+let textBuffer
+fetchWords(wordCount).then(data => { textBuffer = data }).then(() => { loadText(textBuffer) })
 
 async function fetchWords(count) {
-    const response = await fetch(`https://random-word-api.herokuapp.com/word?number=${count}`);
+    const response = await fetch(`https://random-word-api.vercel.app/api?words=${count}`);
     return await response.json();
 }
 
-
-
-function loadText(textToLoad) {
+function loadText(textToLoad, renewBuffer = true) {
+    if (renewBuffer)
+        fetchWords(wordCount).then(data => { textBuffer = data})
     textToLoad.forEach((word, wordIndex) => {
         $('#text-div').append(`<div class="word" id="word-${wordIndex}"></div>`)
         for (let i = 0; i <= word.length; i++) {
@@ -22,7 +23,7 @@ function loadText(textToLoad) {
 }
 
 let currentLetterIndex = 0
-let currentWord = 0
+let currentWordIndex = 0
 let totalMistakes = 0
 let currentMistakes = 0
 let control = false
@@ -31,12 +32,11 @@ let charCount = 0
 let deletedCount = 0
 let startTime
 let typingReady = true
-let splitCount = 0
 
 $(document).on('keydown', (e) => {
     if (!typingReady) return
 
-    let currentLetter = $(`#letter-${currentWord}-${currentLetterIndex}`)
+    let currentLetter = $(`#letter-${currentWordIndex}-${currentLetterIndex}`)
     if (!/^(.|Control|Backspace|Escape)$/.test(e.key)) {
         return
     }
@@ -52,120 +52,131 @@ $(document).on('keydown', (e) => {
     }
     
     if (!typing) {
-        starTypingt()
+        starTyping()
     }
     
     if (e.key === 'Backspace') {
-        if (control) {
-            
-            console.log(currentLetterIndex, currentWord)
-            if (currentLetterIndex === 0 && currentWord !== 0 && currentMistakes === 0) {
-                currentWord--
-                currentLetterIndex = $(`#word-${currentWord}`).children().length - 1
-                deletedCount++
-            }
-
-            let letter = false;
-            let startMistakes = currentMistakes
-            let space = false
-            while (currentMistakes > 0) {
-                let nextMisEl = $(`#mistake-${currentMistakes - 1}`) 
-                if (!letter && $)
-
-                if (/^[^ ]$/.test(nextMisEl.text()))
-                {
-                    letter = true
-                    console.log("fjfjfj")
-                }
-                
-                if (currentMistakes != startMistakes && nextMisEl.text() === ' ' && letter) {
-                    space = true
-                    break
-                }
-                nextMisEl.remove()
-                currentMistakes--
-            }
-            
-
-            while (currentLetterIndex > 0 && !space) {
-                currentLetterIndex--
-                $(`#letter-${currentWord}-${currentLetterIndex}`).removeClass('passed')
-                deletedCount++
-            }
-
-            if (currentMistakes === 0 && !space) 
-                currentLetterIndex = 0
-        }
-        else if (currentMistakes > 0) {
-            $(`#mistake-${currentMistakes - 1}`).remove()
-            currentMistakes--
-        }
-        else {
-            if (currentLetterIndex === 0) {
-                if (currentWord !== 0) 
-                {
-                    currentWord--
-                    currentLetterIndex = $(`#word-${currentWord}`).children().length - 1
-
-                    deletedCount++
-                }
-            }
-            else {
-                currentLetterIndex--
-                $(`#letter-${currentWord}-${currentLetterIndex}`).removeClass('passed')
-                deletedCount++
-            }
-        }
+        backspace()
     }
     else if ((e.key === currentLetter.text() || (e.key === ' ' && currentLetter.text() == " ")) && currentMistakes === 0){
         currentLetter.addClass('passed')
         currentLetterIndex++
-        if (currentLetterIndex === $(`#word-${currentWord}`).children().length) {
-            currentWord++
+        if (currentLetterIndex === $(`#word-${currentWordIndex}`).children().length) {
+            currentWordIndex++
             currentLetterIndex = 0
         }
 
         charCount++
     }
     else {
-        if ($(`#word-${currentWord}`).width() > $('#text-div').width())
-        {
-            splitWord(currentWord)
-        }
-        currentLetter.before(`<span class="letter mistake" id="mistake-${currentMistakes}">${e.key === ' ' ? "&nbsp;" : e.key}</span>`)
+        if (currentMistakes === 0)
+            splitCurrentWord()
+
+        $(`#word-${currentWordIndex}`).before(`<div id="mistake-${currentMistakes}" class="word"><span class="letter mistake">${e.key === ' ' ? "&nbsp;" : e.key}</span></div>`)
         currentMistakes++
         totalMistakes++
     }
 
     $(".caret").removeClass('caret')
-    if (currentWord === $('#text-div').children().length - 1 && currentLetterIndex === $(`#word-${currentWord}`).children().length - 1) {
+    if (currentWordIndex === $('#text-div').children().length - 1 && currentLetterIndex === $(`#word-${currentWordIndex}`).children().length - 1) {
         showStats()
         stopTyping()
     }
     else
-        $(`#letter-${currentWord}-${currentLetterIndex}`).addClass('caret')
+        $(`#letter-${currentWordIndex}-${currentLetterIndex}`).addClass('caret')
 
     updateWPM()
 })
 
-function splitWord(wordIndex) {
-    let word = $(`#word-${wordIndex}`)
-    
-    let split = $(`#split-${splitCount}`) 
-    if (split.width() > $('text-div').width())
-    {
-        splitCount++
-        split = word.after(`<div class="word" id="split-${splitCount}"></div>`)
-    }
-    
-
-    let index = 0
-    word.children().last().detach().appendTo($(`#split-${splitCount}`))
-}
-
 $(document).on('keyup', (e) => {
     if (e.key === 'Control') control = false
 })
+
+function splitCurrentWord() {
+    if (currentLetterIndex === 0) return
+
+    let word = $(`#word-${currentWordIndex}`)
+    let letters = word.children()
+    let split = $(`<div class="word" id="split"></div>`).insertBefore(word)
+    for (let i = 0; i < currentLetterIndex; i++) {
+        split.append($(letters[i]).detach())
+    }
+}
+
+function joinCurrentWord() {
+    let word = $(`#word-${currentWordIndex}`)
+    let split = $('#split')
+    let letters = split.children()
+    for (let i = letters.length - 1; i >= 0; i--) {
+        word.prepend($(letters[i]).detach())
+    }
+    split.remove()
+}
+
+function backspace() { 
+    if (control) {
+            
+        console.log(currentLetterIndex, currentWordIndex)
+        if (currentLetterIndex === 0 && currentWordIndex !== 0 && currentMistakes === 0) {
+            currentWordIndex--
+            currentLetterIndex = $(`#word-${currentWordIndex}`).children().length - 1
+            deletedCount++
+        }
+
+        let letter = false;
+        let startMistakes = currentMistakes
+        let space = false
+        while (currentMistakes > 0) {
+            let nextMisEl = $(`#mistake-${currentMistakes - 1}`) 
+
+            if (nextMisEl.text() !== ' ' && !letter)
+            {
+                letter = true
+            }
+            
+            if (currentMistakes != startMistakes && nextMisEl.text() === ' ' && letter) {
+                space = true
+                break
+            }
+            nextMisEl.remove()
+            currentMistakes--
+        }
+        
+
+        while (currentLetterIndex > 0 && !space) {
+            currentLetterIndex--
+            $(`#letter-${currentWordIndex}-${currentLetterIndex}`).removeClass('passed')
+            deletedCount++
+        }
+
+        if (currentMistakes === 0 && !space) 
+            currentLetterIndex = 0
+    }
+    else if (currentMistakes > 0) {
+        $(`#mistake-${currentMistakes - 1}`).remove()
+        currentMistakes--
+    }
+    else {
+        if (currentLetterIndex === 0) {
+            if (currentWordIndex !== 0) 
+            {
+                currentWordIndex--
+                currentLetterIndex = $(`#word-${currentWordIndex}`).children().length - 1
+
+                deletedCount++
+            }
+        }
+        else {
+            currentLetterIndex--
+            $(`#letter-${currentWordIndex}-${currentLetterIndex}`).removeClass('passed')
+            deletedCount++
+        }
+    }
+
+    if (currentMistakes === 0) {
+        joinCurrentWord()
+    }
+}
 
 function showStats() {
     $('#modal-time').text((getTimeMillis() / 1000).toFixed(2) + "s")
@@ -193,9 +204,10 @@ function stopTyping() {
     resetStats()
 
     $('#text-div').empty()
-    fetchWords(wordCount).then(data => { loadText(data) })
+    
+    loadText(textBuffer)
     currentLetterIndex = 0
-    currentWord = 0
+    currentWordIndex = 0
     currentMistakes = 0
     control = false
 
@@ -206,7 +218,7 @@ function stopTyping() {
     clearInterval(timer)
 }
 
-function starTypingt() { 
+function starTyping() { 
     resetStats()
     $("#basic-info").animate({opacity: 1}, 500)
 
