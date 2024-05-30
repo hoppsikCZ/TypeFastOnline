@@ -253,3 +253,19 @@ function getWPM() {
 $('#stats').on('hidden.bs.modal', () => {
     typingReady = true
 })
+
+$('#roomModal').on('shown.bs.modal', () => {
+    typingReady = false
+})
+
+$('#roomModal').on('hidden.bs.modal', () => {
+    typingReady = true
+})
+
+$('#roomForm').on('submit', function(e) {
+    typingReady = true
+    
+    const roomName = $('#roomName').val();
+    
+    socket.emit('join room', roomName);
+});

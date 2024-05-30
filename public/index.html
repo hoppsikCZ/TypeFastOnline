@@ -21,7 +21,12 @@
 
     <body class="background h-100">
         <header class="fixed-top">
-            <div class="d-flex justify-content-center"><h1>Type Fast Online</h1></div>
+            <div class="d-flex justify-content-center">
+                <h1>Type Fast Online</h1>
+            </div>
+            <div class="d-flex justify-content-center">
+                <button type="button" class="btn multiplayer" data-bs-toggle="modal" data-bs-target="#roomModal">Try multiplayer!</button>
+            </div>
         </header>
         <main class="h-100">
             <div class="d-flex h-100 justify-content-center align-items-center flex-column">
@@ -31,6 +36,7 @@
                 </div><br>
                 <div id="text-div" class="prevent-select col-8"></div>
             </div>
+            <!-- Modal se statistikami -->
             <div class="modal fade" id="stats" tabindex="-1" aria-labelledby="Stats" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content">
@@ -46,6 +52,26 @@
                             </ul>
                         </div>
                     </div>    
+                </div>
+            </div>
+            <!-- Modal pro pripojeni se do mistnosti -->
+            <div class="modal fade" id="roomModal" tabindex="-1" aria-labelledby="roomModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                    <h5 class="modal-title" id="roomModalLabel">Join or Create a Room</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                    <form id="roomForm" action="/multiplayer" method="post">
+                        <div class="mb-3">
+                        <label for="nickname" class="form-label">Nickname</label>
+                        <input type="text" class="form-control" id="nickname" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Join multiplayer</button>
+                    </form>
+                    </div>
+                </div>
                 </div>
             </div>
         </main>
