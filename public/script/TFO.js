@@ -200,7 +200,7 @@ function resetStats() {
 let timer
 
 function stopTyping() {
-    $("#basic-info").animate({opacity: 0}, 500)
+    $("#basic-info").animate({opacity: 0}, 400)
     resetStats()
 
     $('#text-div').empty()
@@ -220,7 +220,7 @@ function stopTyping() {
 
 function starTyping() { 
     resetStats()
-    $("#basic-info").animate({opacity: 1}, 500)
+    $("#basic-info").animate({opacity: 1}, 400)
 
     typing = true
     $('header').fadeOut()

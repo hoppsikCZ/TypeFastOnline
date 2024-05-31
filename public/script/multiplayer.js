@@ -2,6 +2,7 @@ let wordCount = 20
 
 let textBuffer
 fetchWords(wordCount).then(data => { textBuffer = data }).then(() => { loadText(textBuffer) })
+$('#roomModal').modal('show')
 
 async function fetchWords(count) {
     const response = await fetch(`https://random-word-api.vercel.app/api?words=${count}`);
@@ -253,3 +254,19 @@ function getWPM() {
 $('#stats').on('hidden.bs.modal', () => {
     typingReady = true
 })
+
+$('#roomModal').on('shown.bs.modal', () => {
+    typingReady = false
+})
+
+$('#roomModal').on('hidden.bs.modal', () => {
+    typingReady = true
+})
+
+$('#roomForm').on('submit', function(e) {
+    typingReady = true
+    
+    const roomName = $('#roomName').val();
+    
+    socket.emit('join room', roomName);
+});
