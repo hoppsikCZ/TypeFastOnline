@@ -1,16 +1,6 @@
-let wordCount = 20
-
-let textBuffer
-fetchWords(wordCount).then(data => { textBuffer = data }).then(() => { loadText(textBuffer) })
-
-async function fetchWords(count) {
-    const response = await fetch(`https://random-word-api.vercel.app/api?words=${count}`);
-    return await response.json();
-}
-
-function loadText(textToLoad, renewBuffer = true) {
-    if (renewBuffer)
-        fetchWords(wordCount).then(data => { textBuffer = data})
+function loadText(textToLoad) {
+    $('#text-div').empty()
+    console.log(textToLoad)
     textToLoad.forEach((word, wordIndex) => {
         $('#text-div').append(`<div class="word" id="word-${wordIndex}"></div>`)
         for (let i = 0; i <= word.length; i++) {
@@ -46,8 +36,8 @@ $(document).on('keydown', (e) => {
         return
     }
 
-    if (e.key === 'Escape') { 
-        if (typing) stopTyping()
+    if (e.key === 'Escape') {
+        if (typing && !serverData.multiplayer) stopTyping()
         return
     }
     
@@ -81,6 +71,7 @@ $(document).on('keydown', (e) => {
     if (currentWordIndex === $('#text-div').children().length - 1 && currentLetterIndex === $(`#word-${currentWordIndex}`).children().length - 1) {
         showStats()
         stopTyping()
+        return
     }
     else
         $(`#letter-${currentWordIndex}-${currentLetterIndex}`).addClass('caret')
@@ -199,45 +190,6 @@ function resetStats() {
 
 let timer
 
-function stopTyping() {
-    $("#basic-info").animate({opacity: 0}, 400)
-    resetStats()
-
-    $('#text-div').empty()
-    
-    loadText(textBuffer)
-    currentLetterIndex = 0
-    currentWordIndex = 0
-    currentMistakes = 0
-    control = false
-
-    $('header').fadeIn()
-    $('footer').fadeIn()
-
-    typing = false
-    clearInterval(timer)
-}
-
-function starTyping() { 
-    resetStats()
-    $("#basic-info").animate({opacity: 1}, 400)
-
-    typing = true
-    $('header').fadeOut()
-    $('footer').fadeOut()
-    
-    startTime = Date.now()
-
-    timer = setInterval(() => {
-        $('#time').text(Math.round((getTimeMillis()) / 1000))
-        updateWPM()
-    }, 1000)
-}
-
-function updateWPM() {
-    $('#wpm').text(getWPM())
-}
-
 function getTimeMillis() {
     return Date.now() - startTime
 }
@@ -249,23 +201,3 @@ function getWPM() {
     let wpm = Math.round((charCount - deletedCount) / 5 / time * 60)
     return wpm
 }
-
-$('#stats').on('hidden.bs.modal', () => {
-    typingReady = true
-})
-
-$('#roomModal').on('shown.bs.modal', () => {
-    typingReady = false
-})
-
-$('#roomModal').on('hidden.bs.modal', () => {
-    typingReady = true
-})
-
-$('#roomForm').on('submit', function(e) {
-    typingReady = true
-    
-    const roomName = $('#roomName').val();
-    
-    socket.emit('join room', roomName);
-});
