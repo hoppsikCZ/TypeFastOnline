@@ -30,11 +30,14 @@
         </header>
         <main class="h-100">
             <div class="d-flex h-100 justify-content-center align-items-center flex-column">
-                <div id="basic-info" class="d-flex justify-content-between col-8">
-                    <% if (serverData.multiplayer) { %>
+                <% if (serverData.multiplayer) { %>
+                    <div id="status-div" class="d-felx col-8">
+                        <p id="status">Waiting for other players...</p>
                         <ol id="players">
                         </ol>
-                    <% } %>
+                    </div>
+                <% } %> 
+                <div id="basic-info" class="d-flex justify-content-between col-8">
                     <span id="time" class="">0</span>
                     <span>WPM: <span id="wpm">0</span></span>
                 </div><br>

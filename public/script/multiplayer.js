@@ -12,6 +12,7 @@ let players = []
 
 function stopTyping() {
     socket.emit('update info', { wpm: getWPM(), progress: 100 });
+    $('#status').text('Well done!')
     typingReady = false
     control = false
 
@@ -32,6 +33,8 @@ function starTyping() {
     $('header').fadeOut()
     $('footer').fadeOut()
     
+    $('#status').text('Type!')
+
     startTime = Date.now()
 
     timer = setInterval(() => {

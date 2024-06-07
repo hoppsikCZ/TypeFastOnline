@@ -68,8 +68,9 @@ class Room {
 }
 
 class Player {
-  constructor(name) {
+  constructor(name, socket) {
     this.state = 'waiting'
+    this.socket = socket
     this.name = name;
     this.wpm = 0;
     this.progress = 0;
@@ -131,16 +132,17 @@ io.on('connection', (socket) => {
     player.wpm = data.wpm;
     player.progress = Math.round(data.progress);
   });
+
+  socket.on('disconnect', (reason) => {
+    let room = rooms.find(room => room.name === socket.room)
+    let player = room.players.find(player => player.name === socket.name)
+    room.players.splice(room.players.indexOf(player)) 
+    if (room.players) {
+      rooms.splice(rooms.indexOf(rooms.find(room => room.name === socket.room)))
+    }
+  })
 });
 
 server.listen(3000, () => {
   console.log('listening on *:3000');
 });
-
-io.on('disconnect', (socket) => {
-  console.log('a user disconnected');
-  rooms.find(room => room.name === socket.room).players = rooms.find(room => room.name === socket.room).players.filter(player => player.name !== socket.nickname);
-  if (rooms.find(room => room.name === socket.room).players.length === 0) {
-    rooms = rooms.filter(room => room.name !== socket.room);
-  }
-})
