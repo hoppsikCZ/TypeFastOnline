@@ -11,7 +11,7 @@ let text
 let players = []
 
 function stopTyping() {
-    socket.emit('update wpm', { wpm: getWPM(), progress: 100 });
+    socket.emit('update info', { wpm: getWPM(), progress: 100 });
     typingReady = false
     control = false
 
@@ -61,5 +61,5 @@ socket.on('update players', (data) => {
 function updateWPM() {
     let wpm = getWPM()
     $('#wpm').text(wpm)
-    socket.emit('update wpm', { wpm: wpm, progress: $('.passed').length / $('.letter').length * 100 });
+    socket.emit('update info', { wpm: wpm, progress: $('.passed').length / $('.letter').length * 100 });
 }

@@ -23,7 +23,6 @@ class Room {
 
   update() {
     this.updateCounter++;
-    io.to(this.name).emit('update players', { players: this.players });
 
     switch (this.state) {
       case 'waiting':
@@ -48,25 +47,29 @@ class Room {
   }
 
   updatePlaying() {
-    if (this.players.every(player => player.progress >= 100)) {
+    let playing = this.players.filter(player => player.state === 'playing')
+    io.to(this.name).emit('update players', { players: playing });
+
+    if (playing.every(player => player.progress >= 100)) {
       this.endGame();
     }
   }
 
   endGame() {
-    io.to(this.name).emit('update players', { players: this.players });
     io.to(this.name).emit('end game');
     this.state = 'waiting';
   }
 
   startGame() {
     this.state = 'playing';
+    this.players.forEach(player => { player.state = 'playing' })
     fetchWords(1).then(data => {io.to(this.name).emit('start game', { text: data })})
   }
 }
 
 class Player {
   constructor(name) {
+    this.state = 'waiting'
     this.name = name;
     this.wpm = 0;
     this.progress = 0;
@@ -122,7 +125,7 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('update wpm', (data) => {
+  socket.on('update info', (data) => {
     let player = rooms.find(room => room.name === socket.room).players.find(player => player.name === socket.nickname)
     player.wpm = data.wpm;
     player.progress = Math.round(data.progress);
