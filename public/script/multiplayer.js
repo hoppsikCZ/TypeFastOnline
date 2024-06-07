@@ -62,4 +62,5 @@ function updateWPM() {
     let wpm = getWPM()
     $('#wpm').text(wpm)
     socket.emit('update info', { wpm: wpm, progress: $('.passed').length / $('.letter').length * 100 });
+    console.log($('.passed').length / $('.letter').length * 100)
 }

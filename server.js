@@ -63,7 +63,7 @@ class Room {
   startGame() {
     this.state = 'playing';
     this.players.forEach(player => { player.state = 'playing' })
-    fetchWords(1).then(data => {io.to(this.name).emit('start game', { text: data })})
+    fetchWords(20).then(data => {io.to(this.name).emit('start game', { text: data })})
   }
 }
 
@@ -127,6 +127,7 @@ io.on('connection', (socket) => {
 
   socket.on('update info', (data) => {
     let player = rooms.find(room => room.name === socket.room).players.find(player => player.name === socket.nickname)
+    if (!player) return
     player.wpm = data.wpm;
     player.progress = Math.round(data.progress);
   });
