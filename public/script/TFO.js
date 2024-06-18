@@ -69,7 +69,8 @@ $(document).on('keydown', (e) => {
 
     $(".caret").removeClass('caret')
     if (currentWordIndex === $('#text-div').children().length - 1 && currentLetterIndex === $(`#word-${currentWordIndex}`).children().length - 1) {
-        showStats()
+        if (!serverData.multiplayer)
+            showStats()
         stopTyping()
         return
     }

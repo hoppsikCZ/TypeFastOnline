@@ -13,6 +13,7 @@ app.use( bodyParser.json() );
 app.use(bodyParser.urlencoded({     
   extended: true
 })); 
+
 class Room { 
   constructor(name) {
     this.name = name;
@@ -24,6 +25,7 @@ class Room {
   update() {
     this.updateCounter++;
 
+    console.log(this.name + ' state: ' + this.state)
     switch (this.state) {
       case 'waiting':
         this.updateWaiting();
@@ -50,13 +52,15 @@ class Room {
     let playing = this.players.filter(player => player.state === 'playing')
     io.to(this.name).emit('update players', { players: playing });
 
+    console.log(playing)
     if (playing.every(player => player.progress >= 100)) {
       this.endGame();
     }
   }
 
   endGame() {
-    io.to(this.name).emit('end game');
+    let playing = this.players.filter(player => player.state === 'playing')
+    io.to(this.name).emit('end game', { players: playing });
     this.state = 'waiting';
   }
 
@@ -68,9 +72,8 @@ class Room {
 }
 
 class Player {
-  constructor(name, socket) {
+  constructor(name) {
     this.state = 'waiting'
-    this.socket = socket
     this.name = name;
     this.wpm = 0;
     this.progress = 0;
@@ -109,20 +112,27 @@ app.get('/multiplayer', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-  console.log('a user connected');
+  reconnection: false
+  socket.nickname = ''
+  socket.room = ''
+  
   socket.on('join room', (data) => {
     socket.nickname = data.name;
     socket.room = data.room;
     console.log(`${data.name} joined ${data.room}`);
     socket.join(data.room);
     if (!rooms.find(room => room.name === data.room)) {
+      socket.join(data.room);
       let room = new Room(data.room);
       let player = new Player(data.name);
       room.players.push(player);
       rooms.push(room);
     }
     else {
-      rooms.find(room => room.name === data.room).players.push(new Player(data.name, socket));
+      let sameNameCount = rooms.find(room => room.name === data.room).players.filter(player => player.name === data.name).length
+      if (sameNameCount)
+        socket.nickname = data.name + sameNameCount
+      rooms.find(room => room.name === data.room).players.push(new Player(socket.nickname));
     }
   });
 
@@ -135,10 +145,12 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', (reason) => {
     let room = rooms.find(room => room.name === socket.room)
-    let player = room.players.find(player => player.name === socket.name)
-    room.players.splice(room.players.indexOf(player)) 
-    if (room.players) {
-      rooms.splice(rooms.indexOf(rooms.find(room => room.name === socket.room)))
+    if (room) {
+      let player = room.players.find(player => player.name === socket.nickname)
+      room.players.splice(room.players.indexOf(player)) 
+      if (room.players.length === 0) {
+        rooms.splice(rooms.indexOf(rooms.find(room => room.name === socket.room)))
+      }
     }
   })
 });

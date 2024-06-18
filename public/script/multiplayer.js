@@ -61,6 +61,11 @@ socket.on('update players', (data) => {
     })
 })
 
+socket.on('end game', (data) => {
+    $('#status').text('Waiting for other players...')
+    showStats()
+})
+
 function updateWPM() {
     let wpm = getWPM()
     $('#wpm').text(wpm)
