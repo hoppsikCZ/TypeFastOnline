@@ -22,6 +22,7 @@ let charCount = 0
 let deletedCount = 0
 let startTime
 let typingReady = true
+let finishTime = 0
 
 $(document).on('keydown', (e) => {
     if (!typingReady) return
@@ -42,7 +43,10 @@ $(document).on('keydown', (e) => {
     }
     
     if (!typing) {
-        starTyping()
+        if (!serverData.multiplayer)
+            starTyping()
+        else 
+            return
     }
     
     if (e.key === 'Backspace') {
@@ -69,9 +73,11 @@ $(document).on('keydown', (e) => {
 
     $(".caret").removeClass('caret')
     if (currentWordIndex === $('#text-div').children().length - 1 && currentLetterIndex === $(`#word-${currentWordIndex}`).children().length - 1) {
+        finishTime = getTimeMillis() / 1000
+        stopTyping()
+
         if (!serverData.multiplayer)
             showStats()
-        stopTyping()
         return
     }
     else
@@ -171,8 +177,8 @@ function backspace() {
 }
 
 function showStats() {
-    $('#modal-time').text((getTimeMillis() / 1000).toFixed(2) + "s")
-    $('#modal-wpm').text(getWPM())
+    $('#modal-time').text(finishTime.toFixed(2) + "s")
+    $('#modal-wpm').text(getWPM(finishTime))
     $('#modal-mistakes').text(totalMistakes)
     $('#modal-chars').text(charCount + deletedCount)
     $('#stats').modal('show')
@@ -195,8 +201,7 @@ function getTimeMillis() {
     return Date.now() - startTime
 }
 
-function getWPM() {
-    let time = (Date.now() - startTime) / 1000
+function getWPM(time = (Date.now() - startTime) / 1000) {
     if (time < 0.1)
         return 60
     let wpm = Math.round((charCount - deletedCount) / 5 / time * 60)

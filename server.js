@@ -66,8 +66,12 @@ class Room {
 
   startGame() {
     this.state = 'playing';
-    this.players.forEach(player => { player.state = 'playing' })
-    fetchWords(20).then(data => {io.to(this.name).emit('start game', { text: data })})
+    this.players.forEach(player => { 
+      player.state = 'playing' 
+      player.wpm = 60
+      player.progress = 0
+    })
+    fetchWords(1).then(data => {io.to(this.name).emit('start game', { text: data })})
   }
 }
 
@@ -137,6 +141,9 @@ io.on('connection', (socket) => {
   });
 
   socket.on('update info', (data) => {
+    if (!socket.nickname || !socket.room)
+      return
+
     let player = rooms.find(room => room.name === socket.room).players.find(player => player.name === socket.nickname)
     if (!player) return
     player.wpm = data.wpm;
@@ -144,12 +151,12 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', (reason) => {
+
     let room = rooms.find(room => room.name === socket.room)
     if (room) {
-      let player = room.players.find(player => player.name === socket.nickname)
-      room.players.splice(room.players.indexOf(player)) 
+      room.players = room.players.filter(e => e.name !== socket.nickname) 
       if (room.players.length === 0) {
-        rooms.splice(rooms.indexOf(rooms.find(room => room.name === socket.room)))
+        rooms = rooms.filter(e => e !== room)
       }
     }
   })

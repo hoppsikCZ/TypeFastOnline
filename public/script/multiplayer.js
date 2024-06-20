@@ -12,7 +12,7 @@ let players = []
 
 function stopTyping() {
     socket.emit('update info', { wpm: getWPM(), progress: 100 });
-    $('#status').text('Well done!')
+    $('#status').text('Well done! Waiting for other palayers to finish')
     typingReady = false
     control = false
 
@@ -24,22 +24,32 @@ function stopTyping() {
 }
 
 function starTyping() {
+    startTime = Date.now() + 5000
+
+    $('#status').text('Get Ready...')
+
+    $("#basic-info").animate({opacity: 1}, 400)
+
+    $('header').fadeOut()
+    $('footer').fadeOut()
+
     currentLetterIndex = 0
     currentWordIndex = 0
     resetStats()
-    $("#basic-info").animate({opacity: 1}, 400)
 
-    typing = true
-    $('header').fadeOut()
-    $('footer').fadeOut()
-    
-    $('#status').text('Type!')
-
-    startTime = Date.now()
+    $('#time').text(-5)
 
     timer = setInterval(() => {
-        $('#time').text(Math.round((getTimeMillis()) / 1000))
+        let time = (getTimeMillis()) / 1000
+
+        $('#time').text(Math.round(time))
         updateWPM()
+
+        if (!typing && time >= 0) {
+            typing = true
+
+            $('#status').text('Type!')
+        }
     }, 1000)
 }
 
