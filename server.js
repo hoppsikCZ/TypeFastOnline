@@ -71,7 +71,7 @@ class Room {
       player.wpm = 60
       player.progress = 0
     })
-    fetchWords(1).then(data => {io.to(this.name).emit('start game', { text: data })})
+    fetchWords(20).then(data => {io.to(this.name).emit('start game', { text: data })})
   }
 }
 
