@@ -133,7 +133,12 @@ io.on('connection', (socket) => {
       rooms.push(room);
     }
     else {
-      let sameNameCount = rooms.find(room => room.name === data.room).players.filter(player => player.name === data.name).length
+      let sameNameCount = 0
+      let room = rooms.find(room => room.name === data.room)
+      while (room.players.find(player => player.name === data.name + (sameNameCount === 0 ? '' : sameNameCount))) {
+        sameNameCount++;
+      }
+
       if (sameNameCount)
         socket.nickname = data.name + sameNameCount
       rooms.find(room => room.name === data.room).players.push(new Player(socket.nickname));

@@ -14,7 +14,6 @@ function renewBuffer() {
 
 function stopTyping() {
     $("#basic-info").animate({opacity: 0}, 400)
-    resetStats()
 
     $('#text-div').empty()
     
